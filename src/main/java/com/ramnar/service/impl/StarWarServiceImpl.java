@@ -10,9 +10,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import com.ramnar.exception.ResourceNotFoundException;
 import com.ramnar.model.Results;
 import com.ramnar.model.SWElement;
 import com.ramnar.model.SWModel;
@@ -29,35 +32,43 @@ public class StarWarServiceImpl implements StarWarService {
 		List<SWElement> list = new ArrayList<SWElement>();
 		if (type != null && type.trim().length() > 0 && name != null && name.trim().length() > 0) {
 			
-			
-			
-			//read the data from other service
-			String urlOverHttps = HTTPS_SWAPI_CO_API_URL + type;
+			try {
+				//read the data from other service
+				String urlOverHttps = HTTPS_SWAPI_CO_API_URL + type;
 
-			CloseableHttpClient httpClient = HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier())
-					.build();
-			HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
-			requestFactory.setHttpClient(httpClient);
+				CloseableHttpClient httpClient = HttpClients.custom().setSSLHostnameVerifier(new NoopHostnameVerifier())
+						.build();
+				HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory();
+				requestFactory.setHttpClient(httpClient);
 
-			ResponseEntity<String> response = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET,
-					null, String.class);
+				ResponseEntity<String> response = new RestTemplate(requestFactory).exchange(urlOverHttps, HttpMethod.GET,
+						null, String.class);
 
-			// convert body to model
+				// populate service response in intermediate model
 
-			SWModel model = new Gson().fromJson(response.getBody(), SWModel.class);
+				SWModel model = new Gson().fromJson(response.getBody(), SWModel.class);
 
-			// Filter the model
-			for (Results result : model.getResults()) {
-				if (result.getName().equals(name)) {
-					SWElement element = new SWElement(type, name);
-					List<String> films = result.getFilms();
-					element.setFilms(films);
-					element.setCount(films.size());
-					list.add(element);
+				// Filter the model
+				for (Results result : model.getResults()) {
+					if (result.getName().equals(name)) {
+						SWElement element = new SWElement(type, name);
+						List<String> films = result.getFilms();
+						element.setFilms(films);
+						element.setCount(films.size());
+						list.add(element);
+
+					}
 
 				}
-
+			} catch (RestClientException e) {
+				throw new ResourceNotFoundException("Invalid Input");
+			} catch (JsonSyntaxException e) {
+				throw new ResourceNotFoundException("Internal Error");
 			}
+		}
+		
+		if(list.size() == 0) {
+			throw new ResourceNotFoundException("Invalid name");
 		}
 
 		return list;
