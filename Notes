@@ -1,0 +1,3 @@
+if there is space in name or type there is problem
+exception when type is invalid
+empty when name is invalid

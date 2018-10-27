@@ -18,12 +18,15 @@ public class StarWarController {
 	@Autowired
 	StarWarService starWarService;
 
-
 	@GetMapping("/element/{type}/{name}")
-	public List<SWElement> getSWElements(@PathVariable(value = "type") String type, @PathVariable(value = "name") String name) {
-		return starWarService.getSWElements(type, name);
+	public List<SWElement> getSWElements(@PathVariable(value = "type") String type,
+			@PathVariable(value = "name") String name) throws Exception {
+
+		List<SWElement> result = null;
+
+		result = starWarService.getSWElements(type, name);
+
+		return result;
 	}
-
-
 
 }
