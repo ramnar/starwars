@@ -1,5 +1,6 @@
 package com.ramnar.rest;
 
+import java.net.URLDecoder;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +24,8 @@ public class StarWarController {
 			@PathVariable(value = "name") String name) throws Exception {
 
 		List<SWElement> result = null;
-
-		result = starWarService.getSWElements(type, name);
+		System.out.println(URLDecoder.decode(name));
+		result = starWarService.getSWElements(URLDecoder.decode(type), URLDecoder.decode(name));
 
 		return result;
 	}
