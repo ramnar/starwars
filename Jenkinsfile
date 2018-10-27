@@ -1,14 +1,14 @@
-def CONTAINER_NAME="sampleservice"
+def CONTAINER_NAME="starwars"
 def CONTAINER_TAG="latest"
 def DOCKER_HUB_USER="ramnar"
-def HTTP_PORT="8090"
+def HTTP_PORT="8080"
 
 node {
-       stage('Initialize'){
+   /*    stage('Initialize'){
         def dockerHome = tool 'myDocker'
         def mavenHome  = tool 'myMaven'
         env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
-    }
+    }*/
     
     stage('Checkout') {
         /* Let's make sure we have the repository cloned to our workspace */
@@ -50,19 +50,19 @@ def deleteOldImage(containerName){
 }
 
 def buildImage(containerName, tag){
-    sh "docker build -t $containerName:$tag --pull --no-cache ." /*build docker image, pull latest image from repo, donot use cache*/
+    sh "sudo docker build -t $containerName:$tag --pull --no-cache ." /*build docker image, pull latest image from repo, donot use cache*/
     echo "Image build complete"
 }
 
 def pushToRegistry(containerName, tag, dockerHubUser, dockerPassword){
-    sh "docker login -u $dockerHubUser -p $dockerPassword" /*login to docker registry*/
-    sh "docker tag $containerName:$tag $dockerHubUser/$containerName:$tag"/*label docker image with localname and registry name*/
-    sh "docker push $dockerHubUser/$containerName:$tag"  /*push to docker registry*/
+    sh "sudo docker login -u $dockerHubUser -p $dockerPassword" /*login to docker registry*/
+    sh "sudo docker tag $containerName:$tag $dockerHubUser/$containerName:$tag"/*label docker image with localname and registry name*/
+    sh "sudo docker push $dockerHubUser/$containerName:$tag"  /*push to docker registry*/
     echo "Image push complete"
 }
 
 def runApp(containerName, tag, dockerHubUser, httpPort){
-    sh "docker pull $dockerHubUser/$containerName" /*pull image from to docker registry*/
-    sh "docker run -d --rm -p $httpPort:$httpPort --name $containerName $dockerHubUser/$containerName:$tag" /*run docker container in detached mode, map ports, automatically remove when it exits */
+    sh "sudo docker pull $dockerHubUser/$containerName" /*pull image from to docker registry*/
+    sh "sudo docker run -d --rm -p $httpPort:$httpPort --name $containerName $dockerHubUser/$containerName:$tag" /*run docker container in detached mode, map ports, automatically remove when it exits */
     echo "Application started on port: ${httpPort} (http)"
 }
