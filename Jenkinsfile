@@ -7,14 +7,15 @@ node {
 	def OS_PROJECT_NAME='demo-devops'
 	def REPO_NAME='starwars'
     
-    stage('First Time Deployment'){
+   stage('First Time Deployment'){
         script{
             openshift.withCluster() {
                 openshift.withProject("${OS_PROJECT_NAME}") {
                     def bcSelector = openshift.selector( "bc", "${REPO_NAME}")
                     def bcExists = bcSelector.exists()
                     if (!bcExists) {
-                        openshift.newApp("${GIT_URL}")
+                        openshift.newApp("redhat-openjdk18-openshift:1.1~${GIT_URL}","--strategy=source")
+			sh 'sleep 135'    
                     } else {
                         sh 'echo build config already exists'  
                     } 
@@ -35,20 +36,12 @@ node {
         script{
             openshift.withCluster() {
                 openshift.withProject("${OS_PROJECT_NAME}"){
-                    openshift.startBuild("${REPO_NAME}")   
+                    openshift.startBuild("${REPO_NAME}")
+		    sh 'sleep 135' 
                 }
             }
         }
-    }
-
-    stage("Dev - Deploying Application"){
-	   script{
-            openshift.withCluster() {
-                openshift.withProject("${OS_PROJECT_NAME}"){
-                    openshiftDeploy(deploymentConfig: "${REPO_NAME}")   
-                }
-            }
-        }  
-    }
+	}
+   
         
 }
