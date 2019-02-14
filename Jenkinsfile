@@ -3,8 +3,8 @@ node {
     def JAVA_HOME = tool "JAVA_HOME"
     env.PATH="${env.PATH}:${MAVEN_HOME}/bin:${JAVA_HOME}/bin"
     
-    def GIT_URL='REPOSITORY_URL'
-	def REPO_NAME='REPOSITORY_NAME'
+    def GIT_URL='https://github.com/ramnar/starwars.git'
+	def REPO_NAME='starwars'
     
     stage('First Time Deployment'){
         script{
