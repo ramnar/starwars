@@ -3,17 +3,18 @@ node {
     def JAVA_HOME = tool "JAVA_HOME"
     env.PATH="${env.PATH}:${MAVEN_HOME}/bin:${JAVA_HOME}/bin"
     
-    def GIT_URL='https://github.com/ramnar/starwars.git'
-	def REPO_NAME='starwars'
+    def GIT_URL='REPOSITORY_URL'
+	def OS_PROJECT_NAME='PROJECT_NAME'
+	def REPO_NAME='REPOSITORY_NAME'
     
     stage('First Time Deployment'){
         script{
             openshift.withCluster() {
-                openshift.withProject("${REPO_NAME}") {
+                openshift.withProject("${OS_PROJECT_NAME}") {
                     def bcSelector = openshift.selector( "bc", "${REPO_NAME}")
                     def bcExists = bcSelector.exists()
                     if (!bcExists) {
-                        openshift.newApp('https://github.com/ramnar/starwars.git')
+                        openshift.newApp("${GIT_URL}")
                     } else {
                         sh 'echo build config already exists'  
                     } 
@@ -33,7 +34,7 @@ node {
 	stage("Dev - Building Application"){
         script{
             openshift.withCluster() {
-                openshift.withProject("${REPO_NAME}"){
+                openshift.withProject("${OS_PROJECT_NAME}"){
                     openshift.startBuild("${REPO_NAME}")   
                 }
             }
@@ -43,7 +44,7 @@ node {
     stage("Dev - Deploying Application"){
 	   script{
             openshift.withCluster() {
-                openshift.withProject("${REPO_NAME}"){
+                openshift.withProject("${OS_PROJECT_NAME}"){
                     openshiftDeploy(deploymentConfig: "${REPO_NAME}")   
                 }
             }
