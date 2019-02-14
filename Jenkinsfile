@@ -4,13 +4,12 @@ node {
     env.PATH="${env.PATH}:${MAVEN_HOME}/bin:${JAVA_HOME}/bin"
     
     def GIT_URL='REPOSITORY_URL'
-	def OS_PROJECT_NAME='PROJECT_NAME'
 	def REPO_NAME='REPOSITORY_NAME'
     
     stage('First Time Deployment'){
         script{
             openshift.withCluster() {
-                openshift.withProject("${OS_PROJECT_NAME}") {
+                openshift.withProject("${REPO_NAME}") {
                     def bcSelector = openshift.selector( "bc", "${REPO_NAME}")
                     def bcExists = bcSelector.exists()
                     if (!bcExists) {
@@ -34,7 +33,7 @@ node {
 	stage("Dev - Building Application"){
         script{
             openshift.withCluster() {
-                openshift.withProject("${OS_PROJECT_NAME}"){
+                openshift.withProject("${REPO_NAME}"){
                     openshift.startBuild("${REPO_NAME}")   
                 }
             }
@@ -44,7 +43,7 @@ node {
     stage("Dev - Deploying Application"){
 	   script{
             openshift.withCluster() {
-                openshift.withProject("${OS_PROJECT_NAME}"){
+                openshift.withProject("${REPO_NAME}"){
                     openshiftDeploy(deploymentConfig: "${REPO_NAME}")   
                 }
             }
