@@ -5,7 +5,7 @@ def checout(){
 pipeline {
     agent any
     environment {
-        GIT_URL='https://github.com/ramnar/starwars'
+        GIT_URL='https://github.com/ramnar/starwars.git'
     }
    tools{
         maven 'Maven_HOME'
